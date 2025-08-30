@@ -1,0 +1,32 @@
+/* Import Bricolage Grotesque Variable Font */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,100..900&display=swap');
+
+/* CSS Variables for font weights */
+:root {
+  --font-bricolage: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Custom font weight utilities */
+.font-light {
+  font-variation-settings: 'wght' 300;
+}
+
+.font-normal {
+  font-variation-settings: 'wght' 400;
+}
+
+.font-medium {
+  font-variation-settings: 'wght' 500;
+}
+
+.font-semibold {
+  font-variation-settings: 'wght' 600;
+}
+
+.font-bold {
+  font-variation-settings: 'wght' 700;
+}
+
+.font-extrabold {
+  font-variation-settings: 'wght' 800;
+}

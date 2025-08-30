@@ -1,0 +1,36 @@
+{
+  "tasks": [
+    {
+      "id": "3",
+      "title": "Write API documentation",
+      "description": "Document all endpoints and data structures",
+      "priority": "low",
+      "status": "done",
+      "createdAt": "2024-01-15T12:00:00Z"
+    },
+    {
+      "id": "e7541fda-d49d-40fa-965d-1a0d91fe2729",
+      "title": "Add Services Page",
+      "description": "- Mobile dev\n- Web dev\n- ML ",
+      "priority": "high",
+      "status": "todo",
+      "createdAt": "2025-08-30T10:47:15.599Z"
+    },
+    {
+      "id": "104063a3-7864-4124-b02f-2377d8e17065",
+      "title": "Do the changes in the UI",
+      "description": "Add proper glassmorphic style UI\n",
+      "priority": "high",
+      "status": "todo",
+      "createdAt": "2025-08-30T13:20:49.578Z"
+    },
+    {
+      "id": "8b971da3-6065-4541-aa8d-f0c22e388c2d",
+      "title": "Footer",
+      "description": "Fix footer issue",
+      "priority": "",
+      "status": "todo",
+      "createdAt": "2025-08-30T14:19:47.347Z"
+    }
+  ]
+}
