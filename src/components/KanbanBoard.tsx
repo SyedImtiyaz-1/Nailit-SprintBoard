@@ -21,7 +21,7 @@ const columns: { id: Status; title: string; color: string }[] = [
 ];
 
 export default function KanbanBoard() {
-  const { tasks, loading, error, updateTaskStatus, createTask, updateTask, deleteTask, undoLastMove } = useTasks();
+  const { tasks, loading, error, updateTaskStatus, createTask, updateTask, deleteTask, undoLastMove, retryLoadTasks, retryCount, clearError } = useTasks();
   const { logout } = useAuth();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -29,11 +29,35 @@ export default function KanbanBoard() {
   const [showUndoToast, setShowUndoToast] = useState(false);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<Status | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
   const columnRefs = useRef<{ [key in Status]: HTMLDivElement | null }>({
     todo: null,
     'in-progress': null,
     done: null
   });
+
+  // Check connection status
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        setConnectionStatus('checking');
+        const response = await fetch('http://localhost:3002/tasks');
+        if (response.ok) {
+          setConnectionStatus('connected');
+        } else {
+          setConnectionStatus('disconnected');
+        }
+      } catch (error) {
+        setConnectionStatus('disconnected');
+      }
+    };
+
+    checkConnection();
+    
+    // Check connection every 30 seconds
+    const interval = setInterval(checkConnection, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Clear drag states when tasks change
   useEffect(() => {
@@ -166,14 +190,60 @@ export default function KanbanBoard() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-600 dark:text-red-400 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Error Loading Tasks</h2>
-          <p className="text-gray-600 dark:text-gray-400">{error}</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          
+          {/* Retry Information */}
+          {retryCount > 0 && (
+            <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+              <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                Attempt {retryCount} of 3
+              </p>
+              {retryCount < 3 && (
+                <p className="text-yellow-600 dark:text-yellow-300 text-xs mt-1">
+                  Auto-retrying in a few seconds...
+                </p>
+              )}
+            </div>
+          )}
+          
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={retryLoadTasks}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={loading}
+            >
+              {loading ? 'Retrying...' : 'Retry Now'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={clearError}
+              className="px-6 py-2"
+            >
+              Clear Error
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="px-6 py-2"
+            >
+              Refresh Page
+            </Button>
+          </div>
+          
+          {/* Additional Help */}
+          <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
+            <p>If the problem persists, please check your connection and try again.</p>
+          </div>
         </div>
       </div>
     );
@@ -190,6 +260,24 @@ export default function KanbanBoard() {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Connection Status Indicator */}
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${
+                connectionStatus === 'connected' ? 'bg-green-500' :
+                connectionStatus === 'disconnected' ? 'bg-red-500' :
+                'bg-yellow-500 animate-pulse'
+              }`}></div>
+              <span className={`text-xs font-medium ${
+                connectionStatus === 'connected' ? 'text-green-600 dark:text-green-400' :
+                connectionStatus === 'disconnected' ? 'text-red-600 dark:text-red-400' :
+                'text-yellow-600 dark:text-yellow-400'
+              }`}>
+                {connectionStatus === 'connected' ? 'Connected' :
+                 connectionStatus === 'disconnected' ? 'Disconnected' :
+                 'Checking...'}
+              </span>
+            </div>
+            
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               className="px-6 py-3 cursor-pointer"

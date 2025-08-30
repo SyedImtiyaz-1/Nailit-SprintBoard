@@ -10,6 +10,8 @@ interface TaskState {
   loading: boolean;
   error: string | null;
   moveHistory: MoveHistory[];
+  retryCount: number;
+  lastErrorTime: number | null;
 }
 
 interface MoveHistory {
@@ -27,7 +29,10 @@ type TaskAction =
   | { type: 'UPDATE_TASK'; payload: { id: string; updates: Partial<Task> } }
   | { type: 'DELETE_TASK'; payload: string }
   | { type: 'ADD_MOVE_HISTORY'; payload: MoveHistory }
-  | { type: 'REMOVE_LAST_MOVE' };
+  | { type: 'REMOVE_LAST_MOVE' }
+  | { type: 'INCREMENT_RETRY_COUNT' }
+  | { type: 'RESET_RETRY_COUNT' }
+  | { type: 'SET_LAST_ERROR_TIME'; payload: number };
 
 interface TaskContextType {
   tasks: Task[];
@@ -40,6 +45,8 @@ interface TaskContextType {
   undoLastMove: () => void;
   canUndo: boolean;
   clearError: () => void;
+  retryLoadTasks: () => Promise<void>;
+  retryCount: number;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -52,7 +59,7 @@ function taskReducer(state: TaskState, action: TaskAction): TaskState {
     case 'SET_ERROR':
       return { ...state, error: action.payload };
     case 'SET_TASKS':
-      return { ...state, tasks: action.payload, loading: false, error: null };
+      return { ...state, tasks: action.payload, loading: false, error: null, retryCount: 0 };
     case 'ADD_TASK':
       return { ...state, tasks: [...state.tasks, action.payload] };
     case 'UPDATE_TASK':
@@ -68,6 +75,12 @@ function taskReducer(state: TaskState, action: TaskAction): TaskState {
       return { ...state, moveHistory: [...state.moveHistory, action.payload] };
     case 'REMOVE_LAST_MOVE':
       return { ...state, moveHistory: state.moveHistory.slice(0, -1) };
+    case 'INCREMENT_RETRY_COUNT':
+      return { ...state, retryCount: state.retryCount + 1 };
+    case 'RESET_RETRY_COUNT':
+      return { ...state, retryCount: 0 };
+    case 'SET_LAST_ERROR_TIME':
+      return { ...state, lastErrorTime: action.payload };
     default:
       return state;
   }
@@ -78,29 +91,62 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     tasks: [],
     loading: true,
     error: null,
-    moveHistory: []
+    moveHistory: [],
+    retryCount: 0,
+    lastErrorTime: null
   });
 
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (isRetry: boolean = false) => {
     try {
+      if (isRetry) {
+        dispatch({ type: 'INCREMENT_RETRY_COUNT' });
+      }
+      
       dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
       const fetchedTasks = await api.getTasks();
       dispatch({ type: 'SET_TASKS', payload: fetchedTasks });
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err instanceof Error ? err.message : 'Failed to load tasks' });
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load tasks';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_LAST_ERROR_TIME', payload: Date.now() });
     }
   }, []);
+
+  const retryLoadTasks = useCallback(async () => {
+    await loadTasks(true);
+  }, [loadTasks]);
 
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
 
+  // Auto-retry mechanism for failed loads
+  useEffect(() => {
+    if (state.error && state.retryCount < 3 && !state.loading) {
+      const timeSinceLastError = state.lastErrorTime ? Date.now() - state.lastErrorTime : 0;
+      
+      // Wait 5 seconds before auto-retry
+      if (timeSinceLastError > 5000) {
+        const timer = setTimeout(() => {
+          loadTasks(true);
+        }, 5000);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [state.error, state.retryCount, state.loading, state.lastErrorTime, loadTasks]);
+
   const createTask = useCallback(async (data: CreateTaskData) => {
     try {
       const newTask = await api.createTask(data);
       dispatch({ type: 'ADD_TASK', payload: newTask });
+      dispatch({ type: 'SET_ERROR', payload: null });
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err instanceof Error ? err.message : 'Failed to create task' });
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create task';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw err;
     }
   }, []);
@@ -125,11 +171,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
     try {
       await api.updateTask(id, { status: newStatus });
+      dispatch({ type: 'SET_ERROR', payload: null });
     } catch (err) {
       // Rollback on failure
       dispatch({ type: 'UPDATE_TASK', payload: { id, updates: { status: oldStatus } } });
       dispatch({ type: 'REMOVE_LAST_MOVE' });
-      dispatch({ type: 'SET_ERROR', payload: err instanceof Error ? err.message : 'Failed to update task status' });
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update task status';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw err;
     }
   }, [state.tasks]);
@@ -138,8 +186,10 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     try {
       const updatedTask = await api.updateTask(id, data);
       dispatch({ type: 'UPDATE_TASK', payload: { id, updates: updatedTask } });
+      dispatch({ type: 'SET_ERROR', payload: null });
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err instanceof Error ? err.message : 'Failed to update task' });
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update task';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw err;
     }
   }, []);
@@ -148,8 +198,10 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     try {
       await api.deleteTask(id);
       dispatch({ type: 'DELETE_TASK', payload: id });
+      dispatch({ type: 'SET_ERROR', payload: null });
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err instanceof Error ? err.message : 'Failed to delete task' });
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete task';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw err;
     }
   }, []);
@@ -173,6 +225,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const clearError = useCallback(() => {
     dispatch({ type: 'SET_ERROR', payload: null });
+    dispatch({ type: 'RESET_RETRY_COUNT' });
   }, []);
 
   const canUndo = state.moveHistory.length > 0;
@@ -189,6 +242,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       undoLastMove,
       canUndo,
       clearError,
+      retryLoadTasks,
+      retryCount: state.retryCount,
     }}>
       {children}
     </TaskContext.Provider>
