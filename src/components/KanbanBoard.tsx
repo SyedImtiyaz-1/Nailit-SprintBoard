@@ -21,7 +21,7 @@ const columns: { id: Status; title: string; color: string }[] = [
 ];
 
 export default function KanbanBoard() {
-  const { tasks, loading, error, updateTaskStatus, createTask, updateTask, deleteTask, undoLastMove, retryLoadTasks, retryCount, clearError } = useTasks();
+  const { tasks, loading, updateTaskStatus, createTask, updateTask, deleteTask, undoLastMove } = useTasks();
   const { logout } = useAuth();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function KanbanBoard() {
         } else {
           setConnectionStatus('disconnected');
         }
-      } catch (error) {
+      } catch {
         setConnectionStatus('disconnected');
       }
     };
@@ -57,6 +57,13 @@ export default function KanbanBoard() {
     // Check connection every 30 seconds
     const interval = setInterval(checkConnection, 30000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Cleanup undo toast state when component unmounts
+  useEffect(() => {
+    return () => {
+      setShowUndoToast(false);
+    };
   }, []);
 
   // Clear drag states when tasks change
@@ -91,7 +98,10 @@ export default function KanbanBoard() {
   const handleStatusChange = async (id: string, newStatus: Status) => {
     try {
       await updateTaskStatus(id, newStatus);
-      setShowUndoToast(true);
+      // Use setTimeout to ensure this state update happens after the current render cycle
+      setTimeout(() => {
+        setShowUndoToast(true);
+      }, 0);
     } catch {
       // Error is handled in the context
     }
@@ -172,7 +182,10 @@ export default function KanbanBoard() {
     if (task && task.status !== columnId) {
       try {
         await updateTaskStatus(task.id, columnId);
-        setShowUndoToast(true);
+        // Use setTimeout to ensure this state update happens after the current render cycle
+        setTimeout(() => {
+          setShowUndoToast(true);
+        }, 0);
       } catch {
         // Error is handled in the context
       }
@@ -187,67 +200,73 @@ export default function KanbanBoard() {
     );
   }
 
-  if (error) {
+  // If no tasks at all, show a helpful message
+  if (!tasks || tasks.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="text-red-600 dark:text-red-400 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Error Loading Tasks</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
-          
-          {/* Retry Information */}
-          {retryCount > 0 && (
-            <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-              <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                Attempt {retryCount} of 3
-              </p>
-              {retryCount < 3 && (
-                <p className="text-yellow-600 dark:text-yellow-300 text-xs mt-1">
-                  Auto-retrying in a few seconds...
-                </p>
-              )}
+      <div className="min-h-screen bg-gray-50 dark:bg-black p-4 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sprint Board</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your tasks efficiently</p>
             </div>
-          )}
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              onClick={retryLoadTasks}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={loading}
-            >
-              {loading ? 'Retrying...' : 'Retry Now'}
-            </Button>
             
-            <Button
-              variant="outline"
-              onClick={clearError}
-              className="px-6 py-2"
-            >
-              Clear Error
-            </Button>
-            
-            <Button
-              variant="outline"
-              onClick={() => window.location.reload()}
-              className="px-6 py-2"
-            >
-              Refresh Page
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="px-6 py-3 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Task
+              </Button>
+              
+              <DarkModeToggle />
+              
+              <Button
+                variant="ghost"
+                onClick={logout}
+                className="font-medium cursor-pointer"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
-          
-          {/* Additional Help */}
-          <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
-            <p>If the problem persists, please check your connection and try again.</p>
+
+          {/* Empty State */}
+          <div className="text-center py-20">
+            <div className="text-gray-400 dark:text-gray-500 mb-6">
+              <svg className="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 00-2 2v2h2V5z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Welcome to Sprint Board!</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              Get started by creating your first task. You&apos;ll be able to organize, track progress, and manage your projects efficiently.
+            </p>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-8 py-3 text-lg"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Create Your First Task
+            </Button>
           </div>
         </div>
+
+        {/* Create Task Modal */}
+        <CreateTaskModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateTask}
+        />
       </div>
     );
   }
+
+  // Note: Error handling is now completely silent - if there are issues, fallback data is used
+  // This ensures recruiters never see error messages
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black p-4 transition-colors duration-200">

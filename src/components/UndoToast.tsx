@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Undo2 } from 'lucide-react';
@@ -13,23 +13,56 @@ interface UndoToastProps {
 
 export default function UndoToast({ isVisible, onUndo, onHide }: UndoToastProps) {
   const [timeLeft, setTimeLeft] = useState(5);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const onHideRef = useRef(onHide);
+
+  // Update ref when onHide changes
+  useEffect(() => {
+    onHideRef.current = onHide;
+  }, [onHide]);
+
+  // Safe hide function that schedules the call for the next tick
+  const safeHide = useCallback(() => {
+    // Use setTimeout to ensure this runs after the current render cycle
+    setTimeout(() => {
+      onHideRef.current();
+    }, 0);
+  }, []);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible) {
+      // Clear any existing timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
 
     setTimeLeft(5);
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          onHide();
+          // Clear timer first
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          // Use safe hide to avoid React state update conflicts
+          safeHide();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [isVisible, onHide]);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isVisible, safeHide]);
 
   if (!isVisible) return null;
 
