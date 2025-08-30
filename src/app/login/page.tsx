@@ -41,26 +41,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-black dark:to-gray-900 flex items-center justify-center p-4 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-black dark:to-gray-900 flex items-center justify-center p-2 sm:p-4 transition-colors duration-300">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-sm sm:max-w-md mx-4"
       >
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold mb-2">
+        <Card className="w-full">
+          <CardHeader className="text-center px-4 sm:px-6 pb-4">
+            <CardTitle className="text-2xl sm:text-3xl font-bold mb-2">
               Sprint Board Lite
             </CardTitle>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Track your sprints and tasks
             </p>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="px-4 sm:px-6 pb-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -68,7 +68,7 @@ export default function LoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-10 sm:h-11 text-sm sm:text-base"
                     placeholder="Enter your email"
                     required
                   />
@@ -76,7 +76,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -84,7 +84,7 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-10 sm:h-11 text-sm sm:text-base"
                     placeholder="Enter your password"
                     required
                   />
@@ -93,22 +93,22 @@ export default function LoginPage() {
 
               {error && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
                 </div>
               )}
 
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full cursor-pointer"
+                className="w-full cursor-pointer h-10 sm:h-11 text-sm sm:text-base"
                 size="lg"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="mt-4 sm:mt-6 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Demo: Use any non-empty email and password
               </p>
             </div>

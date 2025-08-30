@@ -203,54 +203,59 @@ export default function KanbanBoard() {
   // If no tasks at all, show a helpful message
   if (!tasks || tasks.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-black p-4 transition-colors duration-200">
+      <div className="min-h-screen bg-gray-50 dark:bg-black p-2 sm:p-4 transition-colors duration-200">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sprint Board</h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your tasks efficiently</p>
+          {/* Header - Mobile Responsive */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Sprint Board</h1>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1">Manage your tasks efficiently</p>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="px-6 py-3 cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 cursor-pointer text-sm sm:text-base"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Task
+                <span className="hidden sm:inline">Add Task</span>
+                <span className="sm:hidden">Add</span>
               </Button>
               
-              <DarkModeToggle />
-              
-              <Button
-                variant="ghost"
-                onClick={logout}
-                className="font-medium cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              <div className="flex items-center space-x-2">
+                <DarkModeToggle />
+                
+                <Button
+                  variant="ghost"
+                  onClick={logout}
+                  className="font-medium cursor-pointer px-3 sm:px-4 py-2 text-sm sm:text-base"
+                >
+                  <LogOut className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Logout</span>
+                  <span className="sm:hidden">Out</span>
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Empty State */}
-          <div className="text-center py-20">
-            <div className="text-gray-400 dark:text-gray-500 mb-6">
-              <svg className="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Empty State - Mobile Responsive */}
+          <div className="text-center py-12 sm:py-20">
+            <div className="text-gray-400 dark:text-gray-500 mb-4 sm:mb-6">
+              <svg className="w-16 h-16 sm:w-24 sm:h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 00-2 2v2h2V5z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Welcome to Sprint Board!</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Welcome to Sprint Board!</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 max-w-md mx-auto px-4">
               Get started by creating your first task. You&apos;ll be able to organize, track progress, and manage your projects efficiently.
             </p>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-8 py-3 text-lg"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 text-base sm:text-lg"
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Create Your First Task
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="hidden sm:inline">Create Your First Task</span>
+              <span className="sm:hidden">Create Task</span>
             </Button>
           </div>
         </div>
@@ -269,18 +274,18 @@ export default function KanbanBoard() {
   // This ensures recruiters never see error messages
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black p-4 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-black p-2 sm:p-4 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sprint Board</h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your tasks efficiently</p>
+        {/* Header - Mobile Responsive */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Sprint Board</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1">Manage your tasks efficiently</p>
           </div>
           
-          <div className="flex items-center space-x-4">
-            {/* Connection Status Indicator */}
-            <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            {/* Connection Status Indicator - Hidden on very small screens */}
+            <div className="hidden sm:flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${
                 connectionStatus === 'connected' ? 'bg-green-500' :
                 connectionStatus === 'disconnected' ? 'bg-red-500' :
@@ -299,28 +304,32 @@ export default function KanbanBoard() {
             
             <Button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-6 py-3 cursor-pointer"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 cursor-pointer text-sm sm:text-base"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Task
+              <span className="hidden sm:inline">Add Task</span>
+              <span className="sm:hidden">Add</span>
             </Button>
             
-            <DarkModeToggle />
-            
-            <Button
-              variant="ghost"
-              onClick={logout}
-              className="font-medium cursor-pointer"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex items-center space-x-2">
+              <DarkModeToggle />
+              
+              <Button
+                variant="ghost"
+                onClick={logout}
+                className="font-medium cursor-pointer px-3 sm:px-4 py-2 text-sm sm:text-base"
+              >
+                <LogOut className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+                <span className="sm:hidden">Out</span>
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Board */}
+        {/* Board - Mobile Responsive Grid */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -328,29 +337,29 @@ export default function KanbanBoard() {
           {columns.map((column, index) => (
             <motion.div 
               key={column.id} 
-              className="space-y-4"
+              className="space-y-3 sm:space-y-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              {/* Column Header */}
+              {/* Column Header - Mobile Responsive */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${column.color}`}></div>
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                     {column.title}
                   </h2>
-                  <span className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm px-2 py-1 rounded-full">
+                  <span className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm px-2 py-1 rounded-full">
                     {tasksByStatus[column.id === 'in-progress' ? 'inProgress' : column.id]?.length || 0}
                   </span>
                 </div>
                 
-                {/* Drop Zone Indicator */}
+                {/* Drop Zone Indicator - Hidden on mobile for cleaner look */}
                 {draggedTask && draggedTask.status !== column.id && (
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="flex items-center space-x-1 text-blue-500 dark:text-blue-400"
+                    className="hidden sm:flex items-center space-x-1 text-blue-500 dark:text-blue-400"
                   >
                     <ArrowDown className="w-4 h-4" />
                     <span className="text-xs font-medium">Drag here</span>
@@ -358,12 +367,12 @@ export default function KanbanBoard() {
                 )}
               </div>
 
-              {/* Column Content */}
+              {/* Column Content - Mobile Responsive */}
               <div 
                 ref={(el) => {
                   columnRefs.current[column.id] = el;
                 }}
-                className={`bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[400px] border-2 border-dashed transition-all duration-200 ${
+                className={`bg-gray-50 dark:bg-gray-900 rounded-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] border-2 border-dashed transition-all duration-200 ${
                   dragOverColumn === column.id 
                     ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 scale-[1.02] shadow-lg' 
                     : 'border-gray-200 dark:border-gray-700'
@@ -372,7 +381,7 @@ export default function KanbanBoard() {
                 onDrop={(e) => handleDrop(e, column.id)}
                 onDragLeave={() => setDragOverColumn(null)}
               >
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {(tasksByStatus[column.id === 'in-progress' ? 'inProgress' : column.id] || []).map((task) => (
                     <motion.div
                       key={task.id}
@@ -393,12 +402,12 @@ export default function KanbanBoard() {
                     </motion.div>
                   ))}
                   
-                  {/* Show "Drag Here" when dragging over columns with tasks */}
+                  {/* Show "Drag Here" when dragging over columns with tasks - Hidden on mobile */}
                   {draggedTask && draggedTask.status !== column.id && (tasksByStatus[column.id === 'in-progress' ? 'inProgress' : column.id] || []).length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-center py-4 border-2 border-dashed border-blue-400 rounded-lg bg-blue-50 dark:bg-blue-900/20"
+                      className="hidden sm:block text-center py-4 border-2 border-dashed border-blue-400 rounded-lg bg-blue-50 dark:bg-blue-900/20"
                     >
                       <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                         Drag here
@@ -408,15 +417,15 @@ export default function KanbanBoard() {
                 </div>
 
                 {(tasksByStatus[column.id === 'in-progress' ? 'inProgress' : column.id] || []).length === 0 && (
-                  <div className="text-center py-8">
+                  <div className="text-center py-6 sm:py-8">
                     <div className="text-gray-400 dark:text-gray-500 mb-2">
-                      <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 sm:w-12 sm:h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 00-2 2v2h2V5z" />
                       </svg>
                     </div>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">No tasks yet</p>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">No tasks yet</p>
                     {draggedTask && draggedTask.status !== column.id && (
-                      <p className="text-blue-500 dark:text-blue-400 text-xs mt-2 font-medium">
+                      <p className="hidden sm:block text-blue-500 dark:text-blue-400 text-xs mt-2 font-medium">
                         Drag here
                       </p>
                     )}

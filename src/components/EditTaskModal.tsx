@@ -75,7 +75,7 @@ export default function EditTaskModal({ isOpen, task, onClose, onSubmit }: EditT
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50"
           onClick={handleClose}
         >
           <motion.div
@@ -83,12 +83,12 @@ export default function EditTaskModal({ isOpen, task, onClose, onSubmit }: EditT
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-md"
+            className="w-full max-w-sm sm:max-w-md mx-4"
             onClick={(e) => e.stopPropagation()}
           >
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle>Edit Task</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 sm:pb-4 px-4 sm:px-6">
+                <CardTitle className="text-lg sm:text-xl">Edit Task</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -99,43 +99,57 @@ export default function EditTaskModal({ isOpen, task, onClose, onSubmit }: EditT
                   <X className="h-4 w-4" />
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-title">Title *</Label>
+                  <Label htmlFor="title" className="text-sm sm:text-base">Title *</Label>
                   <Input
-                    id="edit-title"
+                    id="title"
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="Enter task title"
+                    className="text-sm sm:text-base h-10 sm:h-11"
+                    disabled={loading}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit-description">Description *</Label>
+                  <Label htmlFor="description" className="text-sm sm:text-base">Description *</Label>
                   <Textarea
-                    id="edit-description"
+                    id="description"
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    rows={3}
                     placeholder="Enter task description"
+                    className="text-sm sm:text-base min-h-[80px] sm:min-h-[100px] resize-none"
+                    disabled={loading}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit-priority">Priority</Label>
-                  <Select value={formData.priority} onValueChange={(value: Priority) => setFormData(prev => ({ ...prev, priority: value }))}>
-                    <SelectTrigger>
+                  <Label htmlFor="priority" className="text-sm sm:text-base">Priority</Label>
+                  <Select
+                    value={formData.priority}
+                    onValueChange={(value: Priority) => setFormData(prev => ({ ...prev, priority: value }))}
+                    disabled={loading}
+                  >
+                    <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base">
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                     <SelectContent>
                       {priorities.map((priority) => (
-                        <SelectItem key={priority} value={priority}>
-                          {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                        <SelectItem key={priority} value={priority} className="text-sm sm:text-base">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              priority === 'high' ? 'bg-red-500' : 
+                              priority === 'medium' ? 'bg-yellow-500' : 
+                              'bg-gray-500'
+                            }`}></div>
+                            <span className="capitalize">{priority}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -143,27 +157,27 @@ export default function EditTaskModal({ isOpen, task, onClose, onSubmit }: EditT
                 </div>
 
                 {error && (
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <div className="text-red-600 dark:text-red-400 text-sm text-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    {error}
                   </div>
                 )}
 
-                <div className="flex items-center justify-end space-x-3 pt-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={loading || !formData.title?.trim() || !formData.description?.trim()}
+                    className="flex-1 h-10 sm:h-11 text-sm sm:text-base"
+                  >
+                    {loading ? 'Updating...' : 'Update Task'}
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleClose}
                     disabled={loading}
-                    className="cursor-pointer"
+                    className="flex-1 h-10 sm:h-11 text-sm sm:text-base"
                   >
                     Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="cursor-pointer"
-                  >
-                    {loading ? 'Updating...' : 'Update Task'}
                   </Button>
                 </div>
               </form>

@@ -73,28 +73,30 @@ export default function UndoToast({ isVisible, onUndo, onHide }: UndoToastProps)
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 50, scale: 0.9 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+        className="fixed bottom-4 sm:bottom-6 left-2 sm:left-1/2 right-2 sm:right-auto transform sm:-translate-x-1/2 z-50"
       >
-        <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg shadow-lg px-6 py-4 flex items-center space-x-4">
-          <div className="flex items-center space-x-3">
-            <svg className="w-5 h-5 text-green-400 dark:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="font-medium">Task moved successfully</span>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <Button
-              onClick={onUndo}
-              size="sm"
-              className="text-sm cursor-pointer"
-            >
-              <Undo2 className="w-4 h-4 mr-1" />
-              Undo
-            </Button>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-300 dark:text-gray-600">{timeLeft}s</span>
+        <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg shadow-lg px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 dark:text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="font-medium text-sm sm:text-base">Task moved successfully</span>
+            </div>
+            
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Button
+                onClick={onUndo}
+                size="sm"
+                className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 cursor-pointer"
+              >
+                <Undo2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Undo
+              </Button>
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                <span className="text-xs sm:text-sm text-gray-300 dark:text-gray-600">{timeLeft}s</span>
+              </div>
             </div>
           </div>
         </div>
